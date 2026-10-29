@@ -1,26 +1,28 @@
 # Build White-Label CPaaS Platform
 
-Umbral is a white-label CPaaS desk for a registered Indian telemarketer. Sagar Telemedia, in Mumbai, sells through Deccan Relay in Pune. Deccan serves Asha Clinic and Vega Motors. Admin, reseller, and client each sign in to the same console and work only the accounts on their chain.
-
-Messages are scrubbed against the TRAI / DLT register before they are queued. The check covers the principal entity, the header, and the approved template. A number that is not a 10-digit Indian mobile is held. The prepaid wallet is debited only after the message clears.
+White-label CPaaS application for a registered telemarketer. One multi-tenant desk lets the admin, resellers, and end users run SMS, WhatsApp, voice, and RCS. Traffic is scrubbed against Indian TRAI / DLT rules before it is queued.
 
 ## Channels
 
-SMS goes out over SMPP v3.4. The submit carries the Indian DLT tags for the principal entity, the template, and the telemarketer in the chain.
+Bulk SMS goes out over SMPP v3.4. The submit carries the DLT tags for the principal entity and the template.
 
-WhatsApp uses the Cloud API. Approved templates go out as templates. A number that already has a delivered WhatsApp can take a session reply. Copy that asks for a confirmation is sent as an interactive button.
+WhatsApp uses the Cloud API: approved templates, session replies, and an interactive confirmation button.
 
-Voice places the call from the account’s calling line, plays the approved text, and hangs up.
+Voice places an outbound call from the account’s calling line and plays the approved text.
 
-RCS sends a card with a reply action and the brand mark. A handset that cannot take RCS falls back to SMS.
+RCS sends a rich card with a reply action and the brand mark. If the handset cannot take RCS, the message falls back to SMS.
 
 ## Administration
 
-The admin sees the client accounts. The reseller sells prepaid credit to those clients and can load more than it bought from the admin; the wallet keeps that virtual extra on its own line and writes an invoice for the sale. A client sees its own balance, templates, and notices. A balance under the account’s line is flagged.
+Separate logins for admin, reseller, and end user. A reseller can sell more prepaid credit than it bought. The wallet tracks each sub-account, flags a balance under its line, and writes an invoice for the sale.
+
+## Compliance
+
+The scrub runs before submit. It checks the principal entity, the header, and the approved template. A destination that is not a valid Indian mobile is held.
 
 ## Reporting
 
-Notices land as delivered, failed, or pending. The report totals those states, shows delivered traffic by hour, and counts clicks on short links. Delivery receipts come back on the webhook and update the notice.
+Notices are delivered, failed, or pending. The report shows those rates and counts clicks on short links. Delivery receipts come back on the webhook and update the notice.
 
 ## Stack
 
@@ -39,6 +41,6 @@ node server/src/index.js
 npm start
 ```
 
-Gateway settings live in `server/.env`. See `server/.env.example`.
+Gateway settings are in `server/.env`. See `server/.env.example`.
 
 `src/app` is the desk: sign-in, compose, templates, wallet, and report. `server/src` is the gateway: the DLT scrub, the SMPP bind, channel submit, and the ledger.
