@@ -1,0 +1,9 @@
+{
+  "name": "umbral-gateway",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "mysql2": "^3.15.3",
+    "redis": "^5.8.3"
+  }
+}

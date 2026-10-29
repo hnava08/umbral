@@ -1,0 +1,114 @@
+<div class="desk">
+  <form class="slip" [formGroup]="form" (ngSubmit)="load()">
+    <div class="slip-head">
+      <div>
+        <h1>Desk</h1>
+        @if (account(); as current) {
+          <p class="sub">{{ current.name }}, {{ current.city }} · {{ now }}</p>
+        }
+      </div>
+      @if (review(); as current) {
+        <p class="stamp" [class.held]="!current.clear">
+          <span class="stamp-word">{{ current.clear ? 'Clear' : 'Held' }}</span>
+          <span class="stamp-why">{{ current.steps[current.steps.length - 1].text }}</span>
+        </p>
+      }
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Channel">
+      @for (channel of channels; track channel) {
+        <button type="button" [attr.aria-pressed]="values().channel === channel" (click)="setChannel(channel)">
+          {{ label(channel) }}
+        </button>
+      }
+    </div>
+
+    @if (accounts().length > 1) {
+      <label>
+        Account
+        <select class="input" formControlName="accountId">
+          @for (row of accounts(); track row.id) {
+            <option [value]="row.id">{{ row.name }}, {{ row.city }}</option>
+          }
+        </select>
+      </label>
+    }
+    @if (account(); as current) {
+      <dl class="strip">
+        <div>
+          <dt>Entity</dt>
+          <dd class="mono">{{ current.entityId }}</dd>
+        </div>
+        <div>
+          <dt>On file</dt>
+          <dd>{{ current.headers.join(', ') }}</dd>
+        </div>
+        <div>
+          <dt>Credits</dt>
+          <dd>{{ current.credits }}</dd>
+        </div>
+        <div>
+          <dt>Tariff</dt>
+          <dd>{{ tariff() }} {{ tariff() === 1 ? 'credit' : 'credits' }}</dd>
+        </div>
+      </dl>
+      @if (current.credits < current.lowAt) {
+        <p class="error">{{ current.name }} is under its {{ current.lowAt }} line, with {{ current.credits }} left.</p>
+      }
+      @if (values().channel === 'voice') {
+        <p class="meta">The call leaves from {{ current.cli }}.</p>
+      }
+      <label>
+        Header
+        <input class="input header" formControlName="header" />
+      </label>
+      <label>
+        Text
+        <textarea class="input message" formControlName="body" rows="3"></textarea>
+      </label>
+      <label>
+        Mobile
+        <input class="input mono" formControlName="destination" inputmode="numeric" />
+      </label>
+      @if (values().channel === 'rcs') {
+        <label class="check">
+          <input type="checkbox" formControlName="handset" />
+          This handset can take RCS. Unchecked, a clear text leaves as SMS.
+        </label>
+      }
+      <div class="slip-actions">
+        <button class="btn" type="submit">Load an approved template</button>
+        @if (review()?.clear) {
+          <button class="btn primary" type="button" (click)="send()">Queue message</button>
+        }
+      </div>
+      @if (queued()) {
+        <p class="meta">{{ queued() }}</p>
+      }
+    }
+  </form>
+
+  <aside class="checks">
+    <h2>Scrub</h2>
+    @if (review(); as current) {
+      <ol class="tape">
+        @for (step of current.steps; track step.text) {
+          <li [class.seal]="step.seal">{{ step.text }}</li>
+        }
+      </ol>
+    }
+    <h2 class="later">This morning</h2>
+    <ul class="morning">
+      @for (row of recent(); track row.id) {
+        <li>
+          <span class="mono">{{ row.at }}</span>
+          <span>
+            <strong>{{ row.header }}</strong>
+            {{ label(row.channel) }} to {{ mask(row.destination) }}
+          </span>
+          <span [class.bad]="row.state === 'failed'">{{ row.state }}</span>
+        </li>
+      }
+    </ul>
+  </aside>
+</div>

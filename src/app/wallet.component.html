@@ -1,0 +1,110 @@
+<div class="title-row">
+  <div>
+    <h1>Wallet</h1>
+    @if (role() === 'client') {
+      <p class="sub">{{ clients()[0].credits }} credits left of the {{ clients()[0].loaded }} loaded for {{ clients()[0].name }}.</p>
+    } @else {
+      <p class="sub">Deccan Relay sold {{ sold() }} credits and bought {{ bought() }} from Sagar. The {{ extra() }} in between were never loaded: the clinic and the workshop are spending a balance Deccan does not hold.</p>
+    }
+  </div>
+  @if (role() !== 'client' && short(); as row) {
+    <button class="btn primary" type="button" (click)="sell()">Sell 200 credits to {{ row.name }}</button>
+  }
+</div>
+
+@if (role() !== 'client') {
+  <p class="chain">Principal entity, then Sagar Telemedia, then Deccan Relay, then the clinic and the workshop.</p>
+}
+
+<section class="kpis">
+  @if (role() === 'client') {
+    <div class="kpi">
+      <span>Left</span>
+      <strong>{{ clients()[0].credits }}</strong>
+    </div>
+    <div class="kpi">
+      <span>Loaded</span>
+      <strong>{{ clients()[0].loaded }}</strong>
+    </div>
+    <div class="kpi" [class.risk]="clients()[0].credits < clients()[0].lowAt">
+      <span>Line</span>
+      <strong>{{ clients()[0].lowAt }}</strong>
+    </div>
+  } @else {
+    <div class="kpi">
+      <span>Sold</span>
+      <strong>{{ sold() }}</strong>
+    </div>
+    <div class="kpi">
+      <span>Bought</span>
+      <strong>{{ bought() }}</strong>
+    </div>
+    <div class="kpi risk">
+      <span>Virtual extra</span>
+      <strong>{{ extra() }}</strong>
+    </div>
+  }
+</section>
+
+<div class="stack">
+  <section class="panel">
+    <h2>Balances</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Account</th>
+          <th class="num">Left</th>
+          <th class="num">Loaded</th>
+          <th class="num">Line</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of clients(); track row.id) {
+          <tr [class.risk]="row.credits < row.lowAt">
+            <td>
+              <span class="who" [attr.data-id]="row.id">{{ row.name.slice(0, 1) }}</span>
+              {{ row.name }}, {{ row.city }}
+            </td>
+            <td class="num">{{ row.credits }}</td>
+            <td class="num">{{ row.loaded }}</td>
+            <td class="num">{{ row.lowAt }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (short(); as row) {
+      <p class="meta">{{ row.name }} is under its {{ row.lowAt }} line, at {{ row.credits }}.</p>
+    }
+  </section>
+
+  <section class="panel">
+    <h2>Invoices</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Account</th>
+          <th>From</th>
+          <th>Date</th>
+          <th class="num">Credits</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of bills(); track row.id) {
+          <tr>
+            <td class="mono">{{ row.id }}</td>
+            <td>{{ name(row.accountId) }}</td>
+            <td>{{ row.from }}</td>
+            <td>{{ row.on }}</td>
+            <td class="num">{{ row.credits }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (role() === 'client') {
+      <p class="meta">These lines sum to {{ billTotal() }}.</p>
+    } @else {
+      <p class="meta">Client invoices sum to {{ sold() }}. Deccan's purchase from Sagar is {{ bought() }}.</p>
+    }
+  </section>
+</div>

@@ -1,0 +1,29 @@
+<div class="app">
+  <a class="brand" routerLink="/desk" (click)="close()">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M4 4h24v24H4V4zm5 11h14v3H9v-3z"/></svg>
+    <span>Umbral</span>
+  </a>
+  <header class="top">
+    <button type="button" class="menu" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()">
+      Menu
+    </button>
+    <p class="screen">{{ screen() }}</p>
+    @if (account(); as current) {
+      <p class="scope">{{ current.name }} · {{ current.city }}</p>
+    }
+  </header>
+  <nav class="side" [class.open]="menuOpen()" aria-label="Sections">
+    @if (account(); as current) {
+      <p class="menu-who">{{ current.name }}</p>
+      <p class="menu-city">{{ current.city }}</p>
+    }
+    <a routerLink="/desk" routerLinkActive="active" (click)="close()">Desk</a>
+    <a routerLink="/templates" routerLinkActive="active" (click)="close()">Templates</a>
+    <a routerLink="/wallet" routerLinkActive="active" (click)="close()">Wallet</a>
+    <a routerLink="/report" routerLinkActive="active" (click)="close()">Report</a>
+    <button type="button" class="leave" (click)="leave()">Sign out</button>
+  </nav>
+  <main class="sheet">
+    <router-outlet />
+  </main>
+</div>

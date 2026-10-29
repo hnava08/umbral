@@ -1,0 +1,28 @@
+<main class="gate">
+  <form class="gate-sheet" [formGroup]="form" (ngSubmit)="submit()">
+    <p class="brand-lockup">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M4 4h24v24H4V4zm5 11h14v3H9v-3z"/></svg>
+      Umbral
+    </p>
+    <h1>Sign in</h1>
+    <p class="sub">Sagar Telemedia’s desk. A cleared message is queued on this machine: SMPP to the local SMSC, WhatsApp, voice, or RCS. A live operator is used only when its token is set.</p>
+    <label>
+      Email
+      <input class="input" type="email" formControlName="email" autocomplete="username" />
+    </label>
+    <label>
+      Password
+      <input class="input" type="password" formControlName="password" autocomplete="current-password" />
+    </label>
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+    <button class="btn primary" type="submit">Sign in</button>
+    <div class="samples">
+      <button type="button" class="text" (click)="use('ananya@asha.demo')">Asha Clinic</button>
+      <button type="button" class="text" (click)="use('arjun@deccan.demo')">Deccan Relay</button>
+      <button type="button" class="text" (click)="use('meera@sagar.demo')">Sagar Telemedia</button>
+    </div>
+    <p class="meta">The password for all three is umbral.</p>
+  </form>
+</main>

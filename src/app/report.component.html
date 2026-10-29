@@ -1,0 +1,65 @@
+<div class="title-row">
+  <div>
+    <h1>Report</h1>
+    <p class="sub">{{ finding() }}</p>
+  </div>
+</div>
+
+<section class="kpis">
+  <div class="kpi"><span>Delivered</span><strong>{{ delivered() }}</strong></div>
+  <div class="kpi risk"><span>Failed</span><strong>{{ failed() }}</strong></div>
+  <div class="kpi"><span>Pending</span><strong>{{ pending() }}</strong></div>
+</section>
+
+<div class="report-grid">
+  <section class="block">
+    <h2>Delivered by hour</h2>
+    <svg class="chart" viewBox="0 0 320 150" role="img" aria-label="Delivered notices from 08 to 11">
+      @for (row of hours(); track row.hour; let i = $index) {
+        <text [attr.x]="36 + i * 72" y="142" class="axis">{{ row.hour }}</text>
+        <rect [attr.x]="44 + i * 72" [attr.y]="112 - bar(row.count)" width="28" [attr.height]="bar(row.count)" />
+      }
+      <text x="4" y="32" class="axis">{{ scale() }}</text>
+      <text x="4" y="112" class="axis">0</text>
+    </svg>
+    <p class="meta">The bars sum to {{ delivered() }}. Clicks on short links: {{ clicks() }}.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Notices</h2>
+    <table class="notices">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Header</th>
+          <th>Channel</th>
+          <th>Mobile</th>
+          <th>State</th>
+          <th class="num">Clicks</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td class="when mono">{{ row.at }}</td>
+            <td class="head mono">{{ row.header }}</td>
+            <td class="channel">{{ row.channel }}</td>
+            <td class="mobile mono">{{ mask(row.destination) }}</td>
+            <td class="state" [class.bad]="row.state === 'failed'">{{ row.state }}</td>
+            <td class="num clicks">{{ row.clicks }}</td>
+            <td class="act">
+              <span class="line2">{{ row.channel }} · {{ mask(row.destination) }} · {{ row.clicks }} clicks</span>
+              @if (row.note.includes('umbral.in')) {
+                <button type="button" class="text" (click)="ledger.click(row.id)">Count a click</button>
+              }
+              @if (row.note) {
+                <span class="note">{{ row.note }}</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</div>
