@@ -1,46 +1,30 @@
-# Umbral
+# Build White-Label CPaaS Platform
 
-Umbral is the operations desk for Sagar Telemedia, a registered telemarketer in Mumbai. Deccan Relay, in Pune, resells prepaid credit to Asha Clinic and Vega Motors. Staff sign in, check a message against the DLT register, and queue it on SMS, WhatsApp, voice, or RCS.
+Umbral is a white-label CPaaS desk for a registered Indian telemarketer. Sagar Telemedia, in Mumbai, sells through Deccan Relay in Pune. Deccan serves Asha Clinic and Vega Motors. Admin, reseller, and client each sign in to the same console and work only the accounts on their chain.
 
-## Desks
+Messages are scrubbed against the TRAI / DLT register before they are queued. The check covers the principal entity, the header, and the approved template. A number that is not a 10-digit Indian mobile is held. The prepaid wallet is debited only after the message clears.
 
-| Desk | Email | Scope |
-| --- | --- | --- |
-| Sagar Telemedia | meera@sagar.demo | Admin. Sees both clients. |
-| Deccan Relay | arjun@deccan.demo | Reseller. Sells credit to the clinic and the workshop. |
-| Asha Clinic | ananya@asha.demo | Client. Sends only for itself. |
-| Vega Motors | karthik@vega.demo | Client. Kochi workshop on the Deccan chain. |
+## Channels
 
-The password for every desk is `umbral`.
+SMS goes out over SMPP v3.4. The submit carries the Indian DLT tags for the principal entity, the template, and the telemarketer in the chain.
 
-## Work on the desk
+WhatsApp uses the Cloud API. Approved templates go out as templates. A number that already has a delivered WhatsApp can take a session reply. Copy that asks for a confirmation is sent as an interactive button.
 
-Sagar sees the clients. Deccan sells them credit and can load more than it bought; the wallet shows that extra on its own line. A client sees its balance, its templates, and its notices.
+Voice places the call from the account’s calling line, plays the approved text, and hangs up.
 
-A message stays held until four checks pass: the header is on the account, the words match an approved template, the mobile is a 10-digit Indian number, and the wallet can cover the rate. An open WhatsApp session can reply without a new template. RCS to a handset that cannot take it leaves as SMS.
+RCS sends a card with a reply action and the brand mark. A handset that cannot take RCS falls back to SMS.
 
-Rates, in credits: SMS 1, WhatsApp template 2, WhatsApp session reply 1, voice 3, RCS 2.
+## Administration
 
-The report lists delivered, failed, and pending notices, draws the morning by hour, and counts clicks on short links.
+The admin sees the client accounts. The reseller sells prepaid credit to those clients and can load more than it bought from the admin; the wallet keeps that virtual extra on its own line and writes an invoice for the sale. A client sees its own balance, templates, and notices. A balance under the account’s line is flagged.
 
-## Gateway
+## Reporting
 
-`server/` accepts the queue, binds SMPP v3.4, submits the WhatsApp Cloud API payload, runs the voice script, and builds the RCS card. Delivery receipts return on `POST /api/hooks/dlr` and update the notice.
+Notices land as delivered, failed, or pending. The report totals those states, shows delivered traffic by hour, and counts clicks on short links. Delivery receipts come back on the webhook and update the notice.
 
-MySQL keeps the ledger. Redis keeps the send queue. Copy `server/.env.example` to `server/.env` before starting.
+## Stack
 
-| Variable | Use |
-| --- | --- |
-| `PORT` | Gateway port. Default 8050. |
-| `SMPP_PORT` | SMSC port. Default 2775. |
-| `SMPP_PASSWORD` | Password the gateway uses to bind. |
-| `MYSQL_HOST` | MySQL host. |
-| `REDIS_URL` | Redis URL. |
-| `UMBRAL_TPS` | Sends per second. Default 8. |
-| `WHATSAPP_TOKEN` | Meta Cloud API token. |
-| `WHATSAPP_PHONE_ID` | Meta phone number id. |
-
-With `WHATSAPP_TOKEN` and `WHATSAPP_PHONE_ID` set, WhatsApp is submitted to Meta. With them empty, the gateway stores the same payload and receipt locally.
+Angular for the desk. Node.js for the gateway. MySQL for the ledger. Redis for the send queue. Docker Compose for MySQL and Redis.
 
 ## Run
 
@@ -55,8 +39,6 @@ node server/src/index.js
 npm start
 ```
 
-The desk is http://127.0.0.1:8040. The gateway is http://127.0.0.1:8050.
+Gateway settings live in `server/.env`. See `server/.env.example`.
 
-## Layout
-
-`src/app` is the Angular desk: sign-in, shell, compose, templates, wallet, and report. `server/src` is the gateway: the DLT check, the SMPP bind, the channel submit, and the ledger.
+`src/app` is the desk: sign-in, compose, templates, wallet, and report. `server/src` is the gateway: the DLT scrub, the SMPP bind, channel submit, and the ledger.
